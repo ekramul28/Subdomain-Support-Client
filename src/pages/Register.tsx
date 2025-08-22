@@ -1,5 +1,4 @@
-// components/RegisterForm.tsx
-"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
@@ -17,7 +16,6 @@ import { Mail, Lock, User, Store } from "lucide-react";
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, { message: "Name is required" }),
     username: z.string().min(3, { message: "Username is required" }),
     email: z.string().email({ message: "Invalid email address" }),
     password: z
@@ -25,7 +23,7 @@ const registerSchema = z
       .min(6, { message: "Password must be at least 6 characters" }),
     confirmPassword: z.string(),
     shopNames: z
-      .array(z.string().min(2, "Shop name cannot be empty"))
+      .array(z.string().min(2, "Shop name must be at least 2 characters"))
       .min(3, { message: "At least 3 shop names are required" })
       .refine((shops) => new Set(shops).size === shops.length, {
         message: "Shop names must be unique",
@@ -62,7 +60,8 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const { confirmPassword, ...registerData } = data;
+      const registerData = { ...data };
+
       const result = await registerApi(registerData).unwrap();
 
       if (result?.data?.accessToken) {
@@ -75,7 +74,8 @@ export default function RegisterForm() {
         toast.success("Registration successful!");
         navigate("/dashboard");
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      console.log(error);
       toast.error("Registration failed. Please try again.");
     }
   };
@@ -93,23 +93,6 @@ export default function RegisterForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Name */}
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  id="name"
-                  {...registerField("name")}
-                  className="pl-10"
-                  placeholder="Your name"
-                />
-              </div>
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
-            </div>
-
             {/* Username */}
             <div>
               <Label htmlFor="username">Username</Label>
