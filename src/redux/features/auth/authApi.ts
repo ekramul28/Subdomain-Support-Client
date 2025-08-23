@@ -44,6 +44,12 @@ const authApi = baseApi.injectEndpoints({
         body: resetData,
       }),
     }),
+    me: builder.query({
+      query: () => ({
+        url: "/auth/me",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -54,4 +60,5 @@ export const {
   useRefreshTokenMutation,
   useForgetPasswordMutation,
   useResetPasswordMutation,
+  useMeQuery,
 } = authApi;

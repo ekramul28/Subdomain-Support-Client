@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { type TUser, useCurrentToken } from "@/redux/features/auth/authSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { verifyToken } from "@/utils/verifyToken";
-import { Home } from "lucide-react";
+import { Home, ShoppingBasket } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -25,9 +25,9 @@ const roleBasedPaths = {
   user: [
     { name: "Home", path: "/user/home", icon: <Home className="w-5 h-5" /> },
     {
-      name: "Profile",
-      path: "/user/profile",
-      icon: <Home className="w-5 h-5" />,
+      name: "Shops",
+      path: "/user/shops",
+      icon: <ShoppingBasket className="w-5 h-5" />,
     },
     {
       name: "Support",
@@ -61,7 +61,6 @@ const Sidebar: React.FC = () => {
           </div>
           <ScrollArea className="flex-1 p-4">
             <nav className="flex flex-col gap-2">
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               {sidebarItems.map((item: any) => (
                 <Link
                   key={item.path}

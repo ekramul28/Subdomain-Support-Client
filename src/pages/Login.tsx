@@ -7,6 +7,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { setUser, type TUser } from "@/redux/features/auth/authSlice";
 import { verifyToken } from "@/utils/verifyToken";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ export default function LoginForm() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigate = useNavigate();
   // Redux hooks
   const [login] = useLoginMutation();
   const dispatch = useAppDispatch();
@@ -31,7 +32,9 @@ export default function LoginForm() {
       if (res?.data?.accessToken) {
         const user = verifyToken(res.data.accessToken) as TUser;
         dispatch(setUser({ user, token: res.data.accessToken }));
+
         toast.success("Login successful");
+        navigate("/dashboard");
       }
     } catch (err) {
       toast.error("Login failed. Please check your credentials.");

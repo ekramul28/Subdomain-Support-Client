@@ -1,37 +1,51 @@
 // components/dashboard/DashboardNavbar.tsx
 
+"use client";
+
 import React from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useCurrentToken, setUser } from "@/redux/features/auth/authSlice";
-import { verifyToken } from "@/utils/verifyToken";
-import { type TUser } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { setUser } from "@/redux/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, FileUser, LogOut, Store } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
-// import { motion } from "framer-motion";
-// import { useTheme } from "@/components/theme-provider";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useMeQuery } from "@/redux/features/auth/authApi";
 
 const DashboardNavbar: React.FC = () => {
-  const token = useAppSelector(useCurrentToken);
-  const user = token ? (verifyToken(token) as TUser) : null;
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  // Fetch logged-in user data
+  const { data: user, isLoading } = useMeQuery(undefined);
+
+  console.log("this is user data", user);
+
   const handleLogout = () => {
-    dispatch(setUser({ user: null, token: null }));
-    toast.success("Logged out successfully");
-    navigate("/login");
+    if (confirm("Are you sure you want to log out?")) {
+      dispatch(setUser({ user: null, token: null }));
+      toast.success("Logged out successfully");
+      navigate("/login");
+    }
+  };
+
+  const handleShopClick = (shop: string) => {
+    window.location.href = `http://${shop}.localhost:5173`;
   };
 
   return (
-    <header className="w-full h-12 px-4 mb-2 lg:px-6 border-b flex items-center justify-between sticky top-0 z-50 bg-background">
+    <header className="w-full h-14 px-4 mb-2 lg:px-6 border-b flex items-center justify-between sticky top-0 z-50 bg-background shadow-sm">
       {/* Left: Brand + Mobile Sidebar trigger */}
       <div className="flex items-center gap-3">
-        {/* Mobile sidebar trigger */}
         <div className="lg:hidden">
           <Sheet>
             <SheetTrigger asChild>
@@ -44,42 +58,68 @@ const DashboardNavbar: React.FC = () => {
             </SheetContent>
           </Sheet>
         </div>
-
-        {/* Logo */}
-        {/* <Link to="/dashboard" className="text-lg font-bold text-primary">
-          PH Uni
-        </Link> */}
       </div>
 
-      {/* Right: User + Logout */}
+      {/* Right: Profile Dropdown */}
       <div className="flex items-center gap-4">
-        {/* <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        {isLoading ? (
+          <span className="text-sm text-muted-foreground">Loading...</span>
+        ) : user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 rounded-full"
+              >
+                <FileUser className="w-4 h-4" />
+                <span className="hidden sm:block">{user.username}</span>
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="w-64" align="end">
+              <DropdownMenuLabel>Hi, {user.username}</DropdownMenuLabel>
+              <p className="px-2 text-xs text-muted-foreground">{user.email}</p>
+              <DropdownMenuSeparator />
+
+              <DropdownMenuLabel className="text-xs text-muted-foreground">
+                Your Shops
+              </DropdownMenuLabel>
+              {user?.shopNames?.map((shop: string) => (
+                <DropdownMenuItem
+                  key={shop}
+                  onClick={() => handleShopClick(shop)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Store className="w-4 h-4" />
+                  {shop}
+                </DropdownMenuItem>
+              ))}
+
+              <DropdownMenuSeparator />
+              <div className="px-2 py-1 text-xs text-muted-foreground">
+                <p>Created: {new Date(user.createdAt).toLocaleDateString()}</p>
+                <p>Updated: {new Date(user.updatedAt).toLocaleDateString()}</p>
+              </div>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="text-gray-600 dark:text-gray-300"
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/login")}
           >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
+            Login
           </Button>
-        </motion.div> */}
-        {user && (
-          <div className="text-sm text-muted-foreground hidden sm:block">
-            Hi, <span className="font-semibold">{user?.role}</span>
-          </div>
         )}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleLogout}
-          className="hover:bg-destructive hover:text-destructive-foreground"
-        >
-          Logout
-        </Button>
       </div>
     </header>
   );
