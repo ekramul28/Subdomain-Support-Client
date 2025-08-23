@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { useAppDispatch } from "@/redux/hooks";
+import { setUser, type TUser } from "@/redux/features/auth/authSlice";
+import { verifyToken } from "@/utils/verifyToken";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -9,6 +14,10 @@ export default function LoginForm() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redux hooks
+  const [login] = useLoginMutation();
+  const dispatch = useAppDispatch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,10 +27,14 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Replace this with your actual login API call
-      console.log("Logging in with:", formData);
-      alert(`Logged in as ${formData.email}`);
+      const res = await login(formData).unwrap();
+      if (res?.data?.accessToken) {
+        const user = verifyToken(res.data.accessToken) as TUser;
+        dispatch(setUser({ user, token: res.data.accessToken }));
+        toast.success("Login successful");
+      }
     } catch (err) {
+      toast.error("Login failed. Please check your credentials.");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -30,11 +43,10 @@ export default function LoginForm() {
 
   const handleDemoLogin = () => {
     const demoUser = {
-      email: "demo@example.com",
-      password: "Demo@1234",
+      email: "ekramul@example.com",
+      password: "Pass@1234",
     };
     setFormData(demoUser);
-    // Optionally auto-submit:
     setTimeout(() => {
       const fakeEvent = {
         preventDefault: () => {},

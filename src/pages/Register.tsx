@@ -53,7 +53,7 @@ export default function RegisterForm() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray<any, any>({
     control,
     name: "shopNames",
   });
@@ -81,7 +81,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br  p-4">
       <Card className="w-full max-w-md backdrop-blur-lg bg-white/80 shadow-2xl border-0 rounded-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-center text-3xl font-bold text-gray-800">
