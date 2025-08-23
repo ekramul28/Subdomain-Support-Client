@@ -10,7 +10,6 @@ import {
 import { toast } from "sonner";
 import { logout, setUser } from "../features/auth/authSlice";
 import type { RootState } from "../store";
-// import type { RootState } from "../store";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: "http://localhost:5000/api",
@@ -18,6 +17,7 @@ const baseQuery = fetchBaseQuery({
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
+    console.log("here is token", token);
 
     if (token) {
       headers.set("authorization", `${token}`);
